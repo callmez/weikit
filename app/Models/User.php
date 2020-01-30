@@ -38,6 +38,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
+
     public static function cachedFind($id, $columns = ['*'])
     {
         $tag = 'model_user_' . $id;

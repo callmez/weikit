@@ -16,4 +16,19 @@ class UserService
         }
         return $user->createToken($user->username);
     }
+
+    public function register(array $data)
+    {
+        $user = new User($data);
+        if (!$user->save()) {
+            throw new \Exception('register failed');
+        }
+        $this->sendRegisteredMail($user);
+        return $user;
+    }
+
+    public function sendRegisteredMail(User $user)
+    {
+
+    }
 }

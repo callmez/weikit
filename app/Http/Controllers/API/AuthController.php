@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 
 
+/**
+ * @OA\Tag(
+ *     name="Auth",
+ *     description="验证",
+ * )
+ */
 class AuthController extends Controller
 {
     /**
@@ -26,26 +33,90 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/login",
+     *     operationId="login",
+     *     tags={"Auth"},
+     *     summary="用户密码登录",
+     *     description="提交账号密码登录",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="username",
+     *                     description="用户名",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     description="密码",
+     *                     type="string",
+     *                 ),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功登录"
+     *     ),
+     * )
+     */
     public function login(Request $request)
     {
         $user = User::where('username', $request->post('username'))->firstOrFail();
         $token = $this->userService->loginByPassword($user, $request->post('password'));
-        return [ 'access_token' => $token->plainTextToken ];
+
+        return ['access_token' => $token->plainTextToken];
     }
-//
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/register",
+     *     operationId="register",
+     *     tags={"Auth"},
+     *     summary="用户注册",
+     *     description="用户注册",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="username",
+     *                     description="用户名",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="邮箱",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     description="密码",
+     *                     type="string",
+     *                 ),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功登录"
+     *     ),
+     * )
+     */
     public function register(RegisterRequest $request)
     {
-        $user = User::create([
+        $user = $this->userService->register([
             'username' => $request->get('username'),
             'email'    => $request->get('email'),
-            'password' => bcrypt($request->get('password')),
+            'password' => $request->get('password'),
         ]);
-        $user->sendActiveMail();
-        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
-        return response()->json([
-            'token' => $token,
-        ]);
+        return $user;
     }
 //
 //    public function reset(Request $request)
