@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Contract\Debug\MessageBagErrors;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -13,7 +14,8 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        ValidationHttpException::class,
+        \Illuminate\Validation\ValidationException::class,
     ];
 
     /**
@@ -47,5 +49,20 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         return parent::render($request, $exception);
+    }
+
+    /**
+     * Convert the given exception to an array.
+     *
+     * @param  \Exception  $e
+     * @return array
+     */
+    protected function convertExceptionToArray(Exception $e)
+    {
+        $data = parent::convertExceptionToArray($e);
+        if ($e instanceof MessageBagErrors && $e->hasErrors()) {
+            $data['errors'] = $e->getErrors();
+        }
+        return $data;
     }
 }

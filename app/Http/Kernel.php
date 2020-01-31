@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Jsonify;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -38,6 +39,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\Jsonify::class,
             \Laravel\Airlock\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:60,1',
             'bindings',
