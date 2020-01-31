@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 
-class Jsonify
+class ResponseJson
 {
     /**
      * Change the Request headers to accept "application/json" first
