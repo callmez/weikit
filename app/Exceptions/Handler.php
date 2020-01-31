@@ -61,7 +61,9 @@ class Handler extends ExceptionHandler
     {
         $data = parent::convertExceptionToArray($e);
         if ($e instanceof MessageBagErrors && $e->hasErrors()) {
-            $data['errors'] = $e->getErrors();
+            $data = array_merge([
+                'errors' => $e->getErrors(),
+            ], $data);
         }
         return $data;
     }
